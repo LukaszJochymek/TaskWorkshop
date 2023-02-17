@@ -4,9 +4,11 @@ package pl.coderslab;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
@@ -14,17 +16,15 @@ public class TaskManager {
     public static void main(String[] args) {
 
 
-
-
-
         String[] inputOptions = {"add", "remove", "list", "exit"};
         displayOptions(inputOptions);
         Scanner scan = new Scanner(System.in);
         String input = scan.next();
         try {
-            String[][] inputNameFile = task("tasks.csv");
-            choiceOptions(inputNameFile, input);
-        }catch(FileNotFoundException exception){
+            String nameFile = "tasks.csv";
+            String[][] inputNameFile = task(nameFile);
+            choiceOptions(inputNameFile, input,nameFile);
+        } catch (FileNotFoundException exception) {
             System.err.println(exception.getMessage());
         }
 
@@ -64,12 +64,13 @@ public class TaskManager {
 
     }
 
-    public static void choiceOptions(String[][] file, String choice) {
+    public static void choiceOptions(String[][] file, String choice, String nameFile) {
 
         switch (choice) {
 
             case "add":
-//                addTask();
+                addTask(file);
+                saveFile(file,nameFile);
                 break;
             case "remove":
 //                removeTask();
@@ -90,11 +91,39 @@ public class TaskManager {
 
         }
     }
-//    public static void addTask (String[][] file, String input){
-//
-//    }
-}
 
+    public static void addTask(String[][] file) {
+        Scanner scan = new Scanner(System.in);
+        System.out.println("Please add task description:");
+        String taskDescription = scan.next();
+        System.out.println("Please add task due date: ");
+        String taskDate = scan.next();
+        System.out.println("Is your task is important : true/false");
+        String taskImportant = scan.next();
+
+         file = Arrays.copyOf(file,file.length +1);
+        file[file.length-1] = new String[3];
+        file[file.length-1][0] = taskDescription;
+        file[file.length-1][1] = taskDate;
+        file[file.length-1][2] = taskImportant;
+
+
+    }
+
+    public static void saveFile(String[][] file, String nameFile){
+        try {
+            PrintWriter printWriter = new PrintWriter(nameFile);
+            for (int i = 0; i < file.length; i++) {
+                for (int j = 0; j < file[i].length; j++) {
+                    printWriter.println(file[i]);
+                }
+                printWriter.close();
+            }
+        } catch (FileNotFoundException ex) {
+        System.out.println("Błąd zapisu do pliku.");
+    }
+    }
+}
 
 //    public static String[][]task (String nameFile){
 //        File file = new File(nameFile);
