@@ -20,11 +20,12 @@ public class TaskManager {
         displayOptions(inputOptions);
         Scanner scan = new Scanner(System.in);
         String input = scan.next();
+
         try {
-            String nameFile = "tasks.csv";
+            String nameFile ="/home/lukasz/Workshop-1/TaskManager/tasks.csv";
             String[][] inputNameFile = task(nameFile);
-                choiceOptions(inputNameFile, input, nameFile);
-            saveFile(inputNameFile, nameFile);
+            choiceOptions(inputNameFile, input, nameFile);
+
         } catch (FileNotFoundException exception) {
             System.err.println(exception.getMessage());
         }
@@ -43,18 +44,21 @@ public class TaskManager {
         if (!Files.exists(taskPath)) {
             throw new FileNotFoundException("Source file does not exist");
         }
-        String[][] tasks = null;
+        String[][] tasks = new String[0][];
         try {
             List<String> strings = Files.readAllLines(taskPath);
-            tasks = new String[strings.size()][strings.get(0).split(",").length];
-            for (int i = 0; i < strings.size(); i++) {
+            if (strings.size() > 0) {
+                tasks = new String[strings.size()][strings.get(0).split(",").length];
 
-                String[] split = strings.get(i).split(",");
+                for (int i = 0; i < strings.size(); i++) {
 
-                for (int j = 0; j < split.length; j++) {
+                    String[] split = strings.get(i).split(",");
 
-                    tasks[i][j] = split[j];
-                    System.out.println(tasks[i][j]);
+                    for (int j = 0; j < split.length; j++) {
+
+                        tasks[i][j] = split[j];
+                        System.out.println(tasks[i][j]);
+                    }
                 }
             }
         } catch (IOException exception) {
@@ -69,10 +73,13 @@ public class TaskManager {
 
         switch (choice) {
             case "add":
-                addTask(file);
+
+                saveFile(addTask(file),nameFile);
                 break;
             case "remove":
-                removeTask(file);
+                saveFile(removeTask(file),nameFile);
+
+                break;
             case "list":
                 for (int i = 0; i < file.length; i++) {
                     for (int j = 0; j < file[i].length; j++)
@@ -84,11 +91,11 @@ public class TaskManager {
             default:
 
                 System.out.println("Please select a correct option.");
-
+                break;
         }
     }
 
-    public static void addTask(String[][] file) throws IndexOutOfBoundsException {
+    public static String[][] addTask(String[][] file) {
         Scanner scan = new Scanner(System.in);
         System.out.println("Please add task description:");
         String taskDescription = scan.next();
@@ -103,18 +110,25 @@ public class TaskManager {
         file[file.length - 1][1] = taskDate;
         file[file.length - 1][2] = taskImportant;
 
-
+        return file;
     }
 
     public static void saveFile(String[][] file, String nameFile) {
         try {
-            PrintWriter printWriter = new PrintWriter(nameFile);
-            for (int i = 0; i < file.length; i++) {
-                for (int j = 0; i < file[i].length; j++) {
-                    printWriter.println(file[i][j]);
+            if (nameFile != null) {
+                PrintWriter printWriter = new PrintWriter(nameFile);
+
+                for (int i = 0; i < file.length; i++) {
+                    for (int j = 0; j < file[i].length; j++) {
+                        printWriter.print(file[i][j]);
+                        if (j < file.length -1 ){
+                            printWriter.print(",");
+                        }
+                    }
+                    printWriter.print("\n");
                 }
+                printWriter.close();
             }
-            printWriter.close();
         } catch (FileNotFoundException ex) {
             System.out.println("Błąd zapisu do pliku.");
         }
@@ -126,10 +140,10 @@ public class TaskManager {
         int indexToRemove = scan.nextInt();
         String[][] newTable = new String[file.length - 1][];
         int newTableIndex = 0;
-        if (file.length < indexToRemove ){
+        if (file.length < indexToRemove) {
             System.out.println("Podany index jest za duży");
         }
-        if (0 > indexToRemove ){
+        if (0 > indexToRemove) {
             System.out.println("Podany index jest za mały");
         }
         for (int i = 0; i < file.length; i++) {
